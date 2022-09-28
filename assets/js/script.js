@@ -16,7 +16,8 @@ const durationTime = $("#duration-time");
 const titleHot = $(".title-hot")
 const singerTitle = $(".singer")
 const playlist = $(".playlist");
-const songs = 
+const submitForm = $(".form-submit")
+const songsOld = 
     [
       {
         name: "Pink Venom",
@@ -70,34 +71,110 @@ const songs =
     ]
     
 $(document).ready(function(){
-    let currentIndex = 0;
+    var currentIndex = 0;
     let isPlaying = false;
     var myaudio = new Audio();
-    function render () {
-      const htmls = songs.map((song,index) => {
-        return `
-                          <div class="song ${
-                            index === currentIndex ? "active" : ""
-                          }" data-index="${index}">
-                              <div class="thumb"
-                                  style="background-image: url('${song.image}')">
-                              </div>
-                              <div class="body">
-                                  <h3 class="title">${song.name}</h3>
-                                  <p class="author">${song.singer}</p>
-                              </div>
-                              <div class="option">
-                                  <i class="fas fa-ellipsis-h"></i>
-                              </div>
-                          </div>
-                      `;
+    
+    
+    function getDataListMusic(songs) {
+      let endpoint = 'https://localhost:5001/api/Songs/GetSong'
+      $.ajax({
+          url: endpoint,
+          headers: {
+            'Access-Control-Allow-Origin':'*',
+            'Access-Control-Allow-Methods':'GET',
+            'Access-Control-Allow-Headers':'application/json',
+          },
+            contentType: 'application/json',
+            dataType: 'json',
+            success: songs
       });
-      playlist.html(htmls);
+      
+        
+      
     }
-    function defineProperties() {
+    console.log(songsOld);
+
+    function start(){
+      
+      getDataListMusic(function(songs){
+        
+        const render = () => {
+          const htmls = songs.map((song,index) => {
+            return `
+                              <div class="song ${
+                                index === currentIndex ? "active" : ""
+                              }" data-index="${index}">
+                                  <div class="thumb"
+                                      style="background-image: url('${song.image}')">
+                                  </div>
+                                  <div class="body">
+                                      <h3 class="title">${song.name}</h3>
+                                      <p class="author">${song.singer}</p>
+                                  </div>
+                                  <div class="option">
+                                      <i class="fas fa-ellipsis-h"></i>
+                                  </div>
+                              </div>
+                          `;
+            
+          });
+           playlist.html(htmls);
+        }
+        playlist.on('click',function (e) {
+          const songNode = e.target.closest(".song:not(.active)");
+    
+          if (songNode || e.target.closest(".option")) {
+            
+            if (songNode) {
+              currentIndex = Number(songNode.dataset.index);
+              console.log(currentIndex);
+              render();
+              loadCurrentSong();
+              myaudio.play();
+              degree = 0;
+              clearTimeout(timer);
+            }
+           
+            if (e.target.closest(".option")) {
+            }
+          }
+        }); 
+        nextBtn.on('click',function(){
+          currentIndex++;
+          if (currentIndex >= songs.length) {
+              currentIndex = 0;
+          }
+          render();
+          loadCurrentSong();
+          myaudio.play();
+          degree = 0;
+          clearTimeout(timer);
+        });
+        prevBtn.on('click',function(){
+            currentIndex--;
+            if (currentIndex < 0) {
+              currentIndex = songs.length - 1;
+            }
+            console.log(currentIndex);
+            render();
+            loadCurrentSong();
+            myaudio.play();
+            degree = 0;
+            clearTimeout(timer);
+        });
+        defineProperties(songs);
+        render();
+        loadCurrentSong();
+      })
+    }
+    
+    
+    function defineProperties(songs) {
         Object.defineProperty(this, "currentSong",{
           get : function () {
             return songs[currentIndex];
+
           }
         })
     }
@@ -118,25 +195,33 @@ $(document).ready(function(){
         },35);
     }
     
-    playlist.on('click',function (e) {
-      const songNode = e.target.closest(".song:not(.active)");
-
-      if (songNode || e.target.closest(".option")) {
-        
-        if (songNode) {
-          currentIndex = Number(songNode.dataset.index);
-          loadCurrentSong();
-          render();
-          myaudio.play();
-          degree = 0;
-          clearTimeout(timer);
-        }
-       
-        if (e.target.closest(".option")) {
-        }
-      }
-    }); 
     
+    submitForm.on('click',function(){
+      let endpoint = 'https://localhost:5001/api/Songs/PostSong';
+      var songsPost = {
+        Name: $('#song-name').val(),
+        Singer : $('#singer').val(),
+        Path : $('#path').val(),
+        Image : $('#image').val(),
+    }
+      $.ajax({
+        
+        url: endpoint,
+        type : "post",
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(songsPost),
+        
+        success : function (msg) {
+          if (msg) {
+              alert("Somebody" + msg.Name + " was added in list !");
+              location.reload(true);
+          } else {
+              alert("Cannot add to list !");
+          }
+      },
+      })
+    })
     playBtn.on('click',function(){
       if (myaudio.paused){
         myaudio.play();
@@ -176,31 +261,9 @@ $(document).ready(function(){
       const seekTime = (myaudio.duration / 100) * e.target.value;
       myaudio.currentTime = seekTime;
     });
-    nextBtn.on('click',function(){
-      currentIndex++;
-      if (currentIndex >= songs.length) {
-          currentIndex = 0;
-      }
-      loadCurrentSong();
-      myaudio.play();
-      render();
-      degree = 0;
-      clearTimeout(timer);
-    });
-    prevBtn.on('click',function(){
-        currentIndex--;
-        if (currentIndex < 0) {
-          currentIndex = songs.length - 1;
-        }
-        loadCurrentSong();
-        myaudio.play();
-        render();
-        degree = 0;
-        clearTimeout(timer);
-    });
-  
-  
-  defineProperties();
-  loadCurrentSong();
-  render();
+    myaudio.onended = function() {
+       nextBtn.click();
+    }
+    start();
+    
 });

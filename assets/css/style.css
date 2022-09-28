@@ -24,6 +24,7 @@
 }
 html{
     font-family: Arial, Helvetica, sans-serif;
+    color: #333;
 }
 
 #header{
@@ -138,7 +139,6 @@ html{
     width: 100%;
     padding: 60%;
     border-radius: 50%;
-    background-color: #333;
     background-size: cover;
 }
 #systemPlaylistHero .title-Text-Line{
@@ -301,4 +301,72 @@ html{
     color: #999;
     font-size: 18px;
 }
-
+/*library*/
+.form-main{
+    background: #f1f1f1;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    font-family: "Open Sans", sans-serif;
+    
+}
+.form{
+    width: 360px;
+    min-height: 100px;
+    background:#ffffff;
+    text-align: center;
+    padding: 32px 24px;
+    border-radius: 2px;
+    margin: 24px;
+    align-self: center;
+    box-shadow: 0 2px 5px 0;
+}
+.form .heading {
+    font-size: 2rem;
+}
+.spacer {
+    margin-top: 36px;
+  }
+.form-group {
+    display: flex;
+    margin-bottom: 16px;
+    flex-direction: column;
+}
+.form-control{
+    height: 40px;
+    padding: 8px 12px;
+    border: 1px solid #b3b3b3;
+    border-radius: 3px;
+    outline: none;
+    font-size: 1.4rem;
+}
+.form-label{
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 6px;
+  line-height: 1.8rem;
+  font-size: 1.4rem;
+}
+.form-control:hover {
+    border-color: #1dbfaf;
+}
+  
+.form-group.invalid .form-control {
+    border-color: #f33a58;
+}
+.form-submit{
+    outline: none;
+    background-color: #1dbfaf;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 17px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    
+}
+.form-submit:hover{
+    background-color: #1ca093;
+}
